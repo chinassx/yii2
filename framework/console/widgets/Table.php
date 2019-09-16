@@ -13,9 +13,9 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Console;
 
 /**
- * Table class displays a table in console.
+ * Table 类在控制台中显示一个表。
  *
- * For example,
+ * 例如，
  *
  * ```php
  * $table = new Table();
@@ -29,7 +29,7 @@ use yii\helpers\Console;
  *     ->run();
  * ```
  *
- * or
+ * 或者
  *
  * ```php
  * echo Table::widget([
@@ -40,8 +40,8 @@ use yii\helpers\Console;
  *     ],
  * ]);
  *
- * @property string $listPrefix List prefix. This property is write-only.
- * @property int $screenWidth Screen width. This property is write-only.
+ * @property string $listPrefix 列表前缀。此属性是只写的。
+ * @property int $screenWidth 屏幕宽度。此属性是只写的。
  *
  * @author Daniel Gomez Pan <pana_1990@hotmail.com>
  * @since 2.0.13
@@ -67,15 +67,15 @@ class Table extends Widget
     const CHAR_MIDDLE = 'middle';
 
     /**
-     * @var array table headers
+     * @var array 表头
      */
     private $_headers = [];
     /**
-     * @var array table rows
+     * @var array 表行
      */
     private $_rows = [];
     /**
-     * @var array table chars
+     * @var array 表字符
      */
     private $_chars = [
         self::CHAR_TOP => '═',
@@ -95,23 +95,23 @@ class Table extends Widget
         self::CHAR_MIDDLE => '│',
     ];
     /**
-     * @var array table column widths
+     * @var array 表的列宽
      */
     private $_columnWidths = [];
     /**
-     * @var int screen width
+     * @var int 屏幕宽度
      */
     private $_screenWidth;
     /**
-     * @var string list prefix
+     * @var string 列表前缀
      */
     private $_listPrefix = '• ';
 
 
     /**
-     * Set table headers.
+     * 设置表头。
      *
-     * @param array $headers table headers
+     * @param array $headers 表头
      * @return $this
      */
     public function setHeaders(array $headers)
@@ -121,9 +121,9 @@ class Table extends Widget
     }
 
     /**
-     * Set table rows.
+     * 设置表格行。
      *
-     * @param array $rows table rows
+     * @param array $rows 表行
      * @return $this
      */
     public function setRows(array $rows)
@@ -133,9 +133,9 @@ class Table extends Widget
     }
 
     /**
-     * Set table chars.
+     * 设置表格字符。
      *
-     * @param array $chars table chars
+     * @param array $chars 表格字符
      * @return $this
      */
     public function setChars(array $chars)
@@ -145,9 +145,9 @@ class Table extends Widget
     }
 
     /**
-     * Set screen width.
+     * 设置屏幕宽度。
      *
-     * @param int $width screen width
+     * @param int $width 屏幕宽度
      * @return $this
      */
     public function setScreenWidth($width)
@@ -157,9 +157,9 @@ class Table extends Widget
     }
 
     /**
-     * Set list prefix.
+     * 设置列表前缀。
      *
-     * @param string $listPrefix list prefix
+     * @param string $listPrefix 前缀列表
      * @return $this
      */
     public function setListPrefix($listPrefix)
@@ -169,11 +169,13 @@ class Table extends Widget
     }
 
     /**
-     * @return string the rendered table
+     * @return string 渲染表
      */
     public function run()
     {
         $this->calculateRowsSize();
+        $headerCount = count($this->_headers);
+
         $buffer = $this->renderSeparator(
             $this->_chars[self::CHAR_TOP_LEFT],
             $this->_chars[self::CHAR_TOP_MID],
@@ -181,20 +183,24 @@ class Table extends Widget
             $this->_chars[self::CHAR_TOP_RIGHT]
         );
         // Header
-        $buffer .= $this->renderRow($this->_headers,
-            $this->_chars[self::CHAR_LEFT],
-            $this->_chars[self::CHAR_MIDDLE],
-            $this->_chars[self::CHAR_RIGHT]
-        );
+        if ($headerCount > 0) {
+            $buffer .= $this->renderRow($this->_headers,
+                $this->_chars[self::CHAR_LEFT],
+                $this->_chars[self::CHAR_MIDDLE],
+                $this->_chars[self::CHAR_RIGHT]
+            );
+        }
 
         // Content
-        foreach ($this->_rows as $row) {
-            $buffer .= $this->renderSeparator(
-                $this->_chars[self::CHAR_LEFT_MID],
-                $this->_chars[self::CHAR_MID_MID],
-                $this->_chars[self::CHAR_MID],
-                $this->_chars[self::CHAR_RIGHT_MID]
-            );
+        foreach ($this->_rows as $i => $row) {
+            if ($i > 0 || $headerCount > 0) {
+                $buffer .= $this->renderSeparator(
+                    $this->_chars[self::CHAR_LEFT_MID],
+                    $this->_chars[self::CHAR_MID_MID],
+                    $this->_chars[self::CHAR_MID],
+                    $this->_chars[self::CHAR_RIGHT_MID]
+                );
+            }
             $buffer .= $this->renderRow($row,
                 $this->_chars[self::CHAR_LEFT],
                 $this->_chars[self::CHAR_MIDDLE],
@@ -212,12 +218,12 @@ class Table extends Widget
     }
 
     /**
-     * Renders a row of data into a string.
+     * 将一行数据呈现为字符串。
      *
-     * @param array $row row of data
-     * @param string $spanLeft character for left border
-     * @param string $spanMiddle character for middle border
-     * @param string $spanRight character for right border
+     * @param array $row 数据行
+     * @param string $spanLeft 左边框的字符
+     * @param string $spanMiddle 中间边框的字符
+     * @param string $spanRight 右边框的字符
      * @return string
      * @see \yii\console\widgets\Table::render()
      */
@@ -270,13 +276,13 @@ class Table extends Widget
     }
 
     /**
-     * Renders separator.
+     * 渲染分隔符。
      *
-     * @param string $spanLeft character for left border
-     * @param string $spanMid character for middle border
-     * @param string $spanMidMid character for middle-middle border
-     * @param string $spanRight character for right border
-     * @return string the generated separator row
+     * @param string $spanLeft 左边框的字符
+     * @param string $spanMid 中间边框的字符
+     * @param string $spanMidMid middle-middle 边框的字符
+     * @param string $spanRight 右边框的字符
+     * @return string 生成的分隔行
      * @see \yii\console\widgets\Table::render()
      */
     protected function renderSeparator($spanLeft, $spanMid, $spanMidMid, $spanRight)
@@ -293,7 +299,7 @@ class Table extends Widget
     }
 
     /**
-     * Calculate the size of rows to draw anchor of columns in console.
+     * 计算要在控制台中绘制列锚点的行的大小。
      *
      * @see \yii\console\widgets\Table::render()
      */
@@ -303,9 +309,18 @@ class Table extends Widget
         $totalWidth = 0;
         $screenWidth = $this->getScreenWidth() - self::CONSOLE_SCROLLBAR_OFFSET;
 
-        for ($i = 0, $count = count($this->_headers); $i < $count; $i++) {
+        $headerCount = count($this->_headers);
+        if (empty($this->_rows)) {
+            $rowColCount = 0;
+        } else {
+            $rowColCount = max(array_map('count', $this->_rows));
+        }
+        $count = max($headerCount, $rowColCount);
+        for ($i = 0; $i < $count; $i++) {
             $columns[] = ArrayHelper::getColumn($this->_rows, $i);
-            $columns[$i][] = $this->_headers[$i];
+            if ($i < $headerCount) {
+                $columns[$i][] = $this->_headers[$i];
+            }
         }
 
         foreach ($columns as $column) {
@@ -335,10 +350,10 @@ class Table extends Widget
     }
 
     /**
-     * Calculate the height of a row.
+     * 计算行的高度。
      *
      * @param array $row
-     * @return int maximum row per cell
+     * @return int 每单元最大行数
      * @see \yii\console\widgets\Table::render()
      */
     protected function calculateRowHeight($row)
@@ -368,10 +383,10 @@ class Table extends Widget
     }
 
     /**
-     * Getting screen width.
-     * If it is not able to determine screen width, default value `123` will be set.
+     * 获取屏幕宽度。
+     * 如果无法确定屏幕宽度，将设置默认值 `123`。
      *
-     * @return int screen width
+     * @return int 屏幕宽度
      */
     protected function getScreenWidth()
     {
